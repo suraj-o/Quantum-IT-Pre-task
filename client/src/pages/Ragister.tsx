@@ -1,9 +1,48 @@
  
 import { ChevronDown } from "lucide-react"
 import AuthHeader from "../components/AuthHeader"
+import { useState } from "react"
+import OTPComp from "./Otp"
+import toast from "react-hot-toast"
+import axios from "axios"
 
-const Login = () => {
-  return (
+const Register = () => {
+    const [name,setName]=useState<string>();
+    const [lastNmae,setLastName]=useState<string>();
+    const [email,setEmail]=useState<string>();
+    const [phone,setPhone]=useState<number>();
+
+    const [isOtpPage,setIsOtpPage]=useState<boolean>(false)
+
+
+    async function handleSubmit(e:React.FormEvent<HTMLFormElement>){
+        e.preventDefault();
+
+        try {
+            const {data} = await axios.post("http://localhost:3000/api/user/register",
+                { 
+                  name:name,
+                  phone:phone,
+                  email:email
+                },
+                {
+                    headers:{
+                        "Content-Type":"application/json"
+                    }
+                }
+            )
+
+            localStorage.setItem("phone",JSON.stringify(phone))
+            setIsOtpPage(prev=>!prev)
+            
+            toast.success(`${data.message}==> ${data.OTP}`)
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+  return isOtpPage ? <OTPComp/> : (
     <div className="max-w-3xl mx-auto flex flex-col px-3 py-4 lg:mt-6">
 
         {/* Header */}
@@ -24,19 +63,37 @@ const Login = () => {
 
         {/* Input Sections */}
 
-        <form action="" className="flex flex-col items-center justify-start space-y-5 px-3">
+        <form 
+            onSubmit={handleSubmit}
+            className="flex flex-col items-center justify-start space-y-5 px-3">
+
 
             <div className="w-full">
-                <label htmlFor="phone" className="text-lg text-gray-400 ml-2">First Name</label>
+                <label htmlFor="name" className="text-lg text-gray-400 ml-2">First Name</label>
                 <aside className="flex space-x-2 p-4 rounded-full shadow-md">
-                    <input required type="text" className="flex-1 outline-none" placeholder="Your Name" />
+                    <input
+                        value={name} 
+                        onChange={e=>setName(e.target.value)} 
+                        required  
+                        id="name" 
+                        type="text" 
+                        className="flex-1 outline-none" 
+                        placeholder="Your Name" />
                 </aside>
             </div>
 
             <div className="w-full">
-                <label htmlFor="phone" className="text-lg text-gray-400 ml-2">Last Name</label>
+                <label htmlFor="last-name" className="text-lg text-gray-400 ml-2">Last Name</label>
                 <aside className="flex space-x-2 p-4 rounded-full shadow-md">
-                    <input required type="text" className="flex-1 outline-none" placeholder="Your Last Name" />
+                    <input 
+                    value={lastNmae} 
+                    onChange={e=>setLastName(e.target.value)} 
+                    required 
+                    type="text" 
+                    id="last-name" 
+                    className="flex-1 outline-none" 
+                    placeholder="Your Last Name" 
+                    />
                 </aside>
             </div>
            
@@ -44,14 +101,26 @@ const Login = () => {
                 <label htmlFor="phone" className="text-lg text-gray-400 ml-2">Phone Number</label>
                 <aside className="flex space-x-2 p-4 rounded-full shadow-md">
                     <p className="inline-flex">IN <ChevronDown /></p>
-                    <input required type="number" className="flex-1 outline-none"  />
+                    <input
+                        value={phone} 
+                        onChange={e=>setPhone(Number(e.target.value))} 
+                        required 
+                        id="phone" 
+                        type="number" 
+                        className="flex-1 outline-none"  />
                 </aside>
             </div>
 
             <div className="w-full">
-                <label htmlFor="phone" className="text-lg text-gray-400 ml-2">Email Address (Optional)</label>
+                <label htmlFor="email" className="text-lg text-gray-400 ml-2">Email Address (Optional)</label>
                 <aside className="flex space-x-2 p-4 rounded-full shadow-md">
-                    <input type="mail" placeholder="Your Email Address" className="flex-1 outline-none"  />
+                    <input
+                        value={email} 
+                        onChange={e=>setEmail(e.target.value)} 
+                        type="mail" 
+                        id="email" 
+                        placeholder="Your Email Address" 
+                        className="flex-1 outline-none"  />
                 </aside>
             </div>
 
@@ -66,4 +135,4 @@ const Login = () => {
   )
 }
 
-export default Login 
+export default Register 

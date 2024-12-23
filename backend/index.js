@@ -1,10 +1,30 @@
 import express from "express";
-import userRouter from "./routes/user.js"
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({extended:true}))
+import userRouter from "./routes/user.js";
+import cors from "cors"
+import { authorizationVerify } from "./middleware/validation.js";
+import { connectDB } from "./db/db.js";
 
-app.use("/api/user/",userRouter)
+const app = express();;
+
+connectDB();
+
+app.use(express.json());
+app.use(express.urlencoded({extended:false}));
+
+app.use(cors({
+    origin:"*",
+    methods:["GET", "POST"],
+    allowedHeaders:['Content-Type', 'Authorization']
+}))
+
+
+app.get("/",authorizationVerify,(req,res,)=>{
+    res.status(201).json({
+        success:true,
+        message:"you loged in successfully"
+    })
+});
+app.use("/api/user/",userRouter);
 
 // Start the server
 const PORT = 3000;

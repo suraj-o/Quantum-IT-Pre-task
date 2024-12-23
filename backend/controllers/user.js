@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { generateOtp} from "../utils/constant.js";
-import 'dotenv/config'
 import { User } from '../db/schema/user.js';
 import { OTP } from '../db/schema/otp.js';
+import 'dotenv/config'
 
 export const ragisterUser=async (req, res) => {
     try {
         const { email, phone, name } = req.body;
+        console.log(req.body)
         if (!phone || !name) {
             return res.status(400).json({ message: 'Phone and name are required.' });
         }
@@ -24,7 +25,7 @@ export const ragisterUser=async (req, res) => {
             {
                 phone,
                 OTP:New_OTP,
-                expiresAt:Date.now()+ +(process.env.OTP_EXPIRATION_TIME)
+                expiresAt:new Date(Date.now() + +(process.env.OTP_EXPIRATION_TIME))
             }
         );
 
@@ -74,3 +75,5 @@ export const verifyOTP=(req, res) => {
     const token = jwt.sign({ phone }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.status(200).cookie("_Auth",token).json({ message: 'OTP verified successfully.', token });
 }
+
+

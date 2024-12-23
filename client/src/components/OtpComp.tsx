@@ -1,9 +1,15 @@
+import axios from "axios";
 import React, { useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const OTPInput: React.FC = () => {
   // State to store OTP values
   const [otp, setOtp] = useState<string[]>(Array(4).fill(""));
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const navigate = useNavigate()
+
+  
 
   // Handle input change
   const handleInputChange = (
@@ -35,16 +41,47 @@ const OTPInput: React.FC = () => {
     }
   };
 
-  const handleSubmit = () => {
+
+
+
+  const handleSubmit = async () => {
     const otpValue = otp.join(""); 
-    console.log("Entered OTP:", otpValue);
-    alert(`Entered OTP: ${otpValue}`);
+    const phone = localStorage.getItem("phone")
+
+    try {
+      const {data} = await axios.post("http://localhost:3000/api/user/verify-otp",
+        {
+          otp:otpValue,
+          phone:JSON.parse(phone!)
+        },
+        {
+          headers:{
+             "Content-Type":"application/json"
+          }
+        }
+      )
+
+     navigate("/home")
+
+     localStorage.removeItem("phone")
+     localStorage.setItem("token",data.token)
+
+     toast.success("logged in")
+    } catch (error) {
+
+        toast.error("Invalid or expired OTP")
+    }
+    
   };
+
+
+
+  
 
   return (
     <div className="flex flex-col items-center space-y-4">
       {/* OTP Inputs */}
-      <h2 className="self-start ml-20 text-gray-400">Enter OTP</h2>
+      <h2 className="self-start ml-20 lg:ml-56 text-gray-400">Enter OTP</h2>
       <div className="flex justify-center space-x-8">
         {otp.map((_, index) => (
           <input
@@ -63,9 +100,9 @@ const OTPInput: React.FC = () => {
       {/* Resend button */}
       <button
         className="text-md text-white bg-gray-400 px-6 py-1 rounded-full"
-        onClick={handleSubmit}
+        // onClick={}
       >
-        Resend
+        Resend OTP
       </button>
       {/* Submit Button */}
       <button

@@ -3,16 +3,18 @@ import { BrowserRouter as Router, Routes,Route } from "react-router-dom"
 
 const LoginPage = lazy(()=>import("./pages/Login"))
 const RagisterPage = lazy(()=>import("./pages/Ragister"))
-const OtpPage = lazy(()=>import("./pages/Otp"))
+const HomePage = lazy(()=>import("./pages/Home"))
 
-const App = () => {
+
+const App:React.FC = () => {
   return (
     <Router>
         <Suspense fallback={"...loading"}>
             <Routes>
               <Route path="/" element={<LoginPage/>}/>
               <Route path="/register" element={<RagisterPage/>}/>
-              <Route path="/verify" element={<OtpPage/>}/>
+              <Route path="/Home" element={<HomePage/>}/>
+              
             </Routes>
         </Suspense>
     </Router>

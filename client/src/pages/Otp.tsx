@@ -1,5 +1,3 @@
- 
-import { ChevronDown } from "lucide-react"
 import AuthHeader from "../components/AuthHeader"
 import OTPInput from "../components/OtpComp"
 
