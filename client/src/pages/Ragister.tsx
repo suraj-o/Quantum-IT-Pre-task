@@ -5,6 +5,7 @@ import { useState } from "react"
 import OTPComp from "./Otp"
 import toast from "react-hot-toast"
 import axios from "axios"
+import { Link } from "react-router-dom"
 
 const Register = () => {
     const [name,setName]=useState<string>();
@@ -58,8 +59,9 @@ const Register = () => {
             Welcome friend, enter your details.
             </p>
         </div>        
-
-        <p className=" self-end mr-10 text-blue-700"> Already have account</p>
+        <Link className=" self-end mr-10 text-blue-700" to={"/"}>
+            <p className=" self-end mr-10 text-blue-700"> Already have account</p>
+        </Link>
 
         {/* Input Sections */}
 

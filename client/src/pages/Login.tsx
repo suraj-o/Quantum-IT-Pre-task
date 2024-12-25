@@ -4,6 +4,7 @@ import { useState } from "react"
 import axios from "axios"
 import toast from "react-hot-toast"
 import OTPComp from "./Otp"
+import { Link } from "react-router-dom"
 
 const Login = () => {
 
@@ -48,8 +49,10 @@ const Login = () => {
                     Good to see you again, enter your details below to continue.
                 </p>
             </div>        
-    
-            <p className=" self-end mr-10 text-blue-700"> Dont have account</p>
+
+            <Link className=" self-end mr-10 text-blue-700" to={"/register"}>
+                <p> Dont have account</p>
+            </Link>
     
             {/* Input Sections */}
     
