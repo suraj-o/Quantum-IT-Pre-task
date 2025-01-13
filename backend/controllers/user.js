@@ -1,79 +1,83 @@
 import jwt from 'jsonwebtoken';
-import { generateOtp} from "../utils/constant.js";
 import { User } from '../db/schema/user.js';
-import { OTP } from '../db/schema/otp.js';
+import bcrypt from "bcrypt"
 import 'dotenv/config'
+import { ErrorHandler } from '../middleware/errormiddleware.js';
 
-export const ragisterUser=async (req, res) => {
+export const ragisterUser=async (req, res,next) => {
     try {
-        const { email, phone, name } = req.body;
-        console.log(req.body)
-        if (!phone || !name) {
-            return res.status(400).json({ message: 'Phone and name are required.' });
-        }
+        const { email,name,username,password,dob } = req.body;
 
-        const user = await User.findOne({phone})
-        if (user) {
-            return res.status(400).json({ message: 'User already exists with this phone number.' });
-        }
+        if (!email || !name || !username || !password || !dob) 
+            return next(new ErrorHandler('fill all require things',400))
 
-        await User.create({name,phone,email})
-
-        // Generate OTP
-        const New_OTP = generateOtp();
-        await OTP.create(
+        const user = await User.findOne({email});
+        if (user) return next(new ErrorHandler("user already exist",400))
+        
+        const hashPassword = await bcrypt.hash(password,10)
+        await User.create(
             {
-                phone,
-                OTP:New_OTP,
-                expiresAt:new Date(Date.now() + +(process.env.OTP_EXPIRATION_TIME))
+                email,
+                name,
+                username,
+                password:hashPassword,
+                Date_Of_Birth: dob
+            }
+        )
+
+        const authToken = jwt.sign({email}, process.env.JWT_SECRET)
+        res.status(201).json(
+            { 
+                success:true,
+                message: 'User registered successfully.', 
+                authToken,
             }
         );
 
-        res.status(201).json({ message: 'User registered successfully.', OTP:New_OTP });
     } catch (error) {
-        console.log(error.messa)
+        console.log(error)
     }
 }
 
 
-export const loginUser=async (req, res) => {
+export const loginUser=async (req, res,next) => {
     try {
-        const { phone, name } = req.body;
-        if (!phone || !name) {
-            return res.status(400).json({ message: 'Phone and name are required.' });
-        }
+        const { email, password } = req.body;
+        
+        if (!email || !password) return next(new ErrorHandler('fill all require things',400))
 
-        const user = await User.findOne({phone})
-        if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
+        const user = await User.findOne({email}).select("+password")
+        if (!user)  return next(new ErrorHandler('User not found.',404))
 
-        if (user.name !== name) {
-            return res.status(400).json({ message: 'Invalid name.' });
-        }
+        const isPassMatched = await bcrypt.compare(password,user.password);
+        console.log(isPassMatched)
+        if(!isPassMatched) return next(new ErrorHandler('incorrect password.',403))
 
-        // Generate OTP
-        const New_OTP = generateOtp();
-        await OTP.create(
-            {
-                phone,
-                OTP:New_OTP,
-                expiresAt:Date.now()+ +(process.env.OTP_EXPIRATION_TIME)
-            }
+        const authToken = jwt.sign({email}, process.env.JWT_SECRET)
+        res.status(201).json(
+        { 
+            success:true,
+            message: 'User login successfully.', 
+            authToken,
+        }
         );
-
-        res.status(200).json({ message: 'OTP sent successfully.', OTP:New_OTP });
     } catch (error) {
         console.log(error.message)
     }
 }
 
-export const verifyOTP=(req, res) => {
-    const { phone } = req.body;
 
-    // Generate JWT
-    const token = jwt.sign({ phone }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).cookie("_Auth",token).json({ message: 'OTP verified successfully.', token });
+export const getAlluserList=async(req,res,next)=>{
+    try {
+        console.log(54)
+        const allUser = await User.find()
+        console.log(4)
+        res.status(200).json({
+            success:true,
+            message:"all user fected",
+            data:allUser
+        })
+    } catch (error) {
+        
+    }
 }
-
-

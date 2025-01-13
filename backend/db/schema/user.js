@@ -4,13 +4,26 @@ const schema = new Schema(
     {
         name:{
             type:String,
-            require:[true,"please enter name"],
+            require:[true,"please provide name"],
         },
-        phone:{
-            type:Number,
-            require:[true,"please enter phone number"]
+        username:{
+            type:String,
+            require:[true,"please provide username"],
         },
-        email:String
+        email:{
+            type:String,
+            require:[true,"please provide phone number"]
+        },
+        password:{
+            type:String,
+            select:false,
+            require:[true, "please provide password"]
+        },
+        Date_Of_Birth:{
+            type:Date,
+            require:[true,"please provide the date-of-birth"]
+        }
+
     },{
         timestamps:true
     }

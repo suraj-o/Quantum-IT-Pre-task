@@ -1,39 +1,43 @@
-import { ChevronDown } from "lucide-react"
-import AuthHeader from "../components/AuthHeader"
+
+import axios, { AxiosError } from "axios"
 import { useState } from "react"
-import axios from "axios"
 import toast from "react-hot-toast"
-import OTPComp from "./Otp"
 import { Link } from "react-router-dom"
+import AuthHeader from "../components/AuthHeader"
 
 const Login = () => {
 
-    const [name,setName]=useState<string>();
-    const [phone,setPhone]=useState<number>();
-    const [isOtpPage,setIsOtpPage]=useState<boolean>(false)
+    const [email,setEmail]=useState<string>();
+    const [password,setPassword]=useState<string>();
+    const [loading,setloading] =useState<boolean>(false)
 
     async function handleSubmit(e:React.FormEvent<HTMLFormElement>){
         e.preventDefault();
 
         try {
-            const {data} = await axios.post("http://localhost:3000/api/user/login",
-                { name, phone },
+            setloading(true)
+            const {data} = await axios.post("http://localhost:3000/user/login",
+                { email, password },
                 {
                     headers:{
                         "Content-Type":"application/json"
                     }
                 }
             )
-            setIsOtpPage(prev=>!prev)
-            localStorage.setItem("phone",JSON.stringify(phone))
-            toast.success(`${data.message}==> ${data.OTP}`)
+           
+            localStorage.setItem("authid",data.authToken)
+            setloading(false)
+            toast.success(data.message)
+            location.reload()
+
         } catch (error) {
-            
+            let  data = (error as AxiosError).response!.data
+            toast.error((data as {success:boolean,message:string}).message)
         }
     }
 
 
-  return isOtpPage ? <OTPComp/> : (
+  return (
             <div className="max-w-3xl mx-auto flex flex-col px-3 py-4 lg:mt-6">
 
             {/* Header */}
@@ -61,34 +65,40 @@ const Login = () => {
              className="flex flex-col items-center justify-start space-y-5 px-3">
                
                 <div className="w-full">
-                    <label htmlFor="phone" className="text-lg text-gray-400 ml-2">Phone Number</label>
+                    <label htmlFor="phone" className="text-lg text-gray-400 ml-2">Email</label>
                     <aside className="flex space-x-2 p-4 rounded-full shadow-md">
-                        <p className="inline-flex">IN <ChevronDown /></p>
                         <input 
-                            required 
-                            type="number" 
+                            required
+                            name="user-email"
+                            type="email" 
                             className="flex-1 outline-none"
-                            value={phone}
-                            onChange={(e)=>setPhone(Number(e.target.value))}  
+                            placeholder="Email Address"
+                            value={email}
+                            onChange={(e)=>setEmail(e.target.value)}
                             />
                     </aside>
                 </div>
     
                 <div className="w-full">
-                    <label htmlFor="phone" className="text-lg text-gray-400 ml-2">Your Name</label>
+                    <label htmlFor="phone" className="text-lg text-gray-400 ml-2">Password</label>
                     <aside className="flex space-x-2 p-4 rounded-full shadow-md">
                         <input 
                             required 
-                            type="text" 
+                            type="password" 
                             className="flex-1 outline-none" 
-                            placeholder="Your Name"
-                            value={name}
-                            onChange={(e)=>setName(e.target.value as string)}
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e)=>setPassword(e.target.value)}
                             />
                     </aside>
                 </div>
     
-                <button className="text-lg font-semibold text-white bg-blue-500 px-8 py-2 rounded-full" type="submit">Sent OTP</button>
+                <button className="text-lg font-semibold text-white bg-blue-500 px-8 py-2 rounded-full" type="submit">
+                     { loading?
+                        <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                        :"Login" 
+                     }
+                </button>
        
             </form>
     

@@ -1,94 +1,98 @@
-import axios from "axios";
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
+import { DateToString } from "@/util/dateConvertor"
+import axios, { AxiosError } from "axios"
+import { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 
-const LandingPage: React.FC = () => {
-    const navigate= useNavigate()
+interface User{
+  _id:string
+  name:string,
+  email:string,
+  Date_Of_Birth:Date,
+  username:string,
+  createdAt:Date,
+  updateAt:Date,
+}
 
-    const token= localStorage.getItem("token") as string
+const Home = () => {
+  const [users,setUsers]= useState<User[]>([
+    // {
+    //   name:"",
+    //   username:"",
+    //   email:"",
+    //   Date_Of_birth:new Date(Date.now()),
+    //   createdAt:new Date(),
+    //   UpdateAt:new Date()
+    // }
+  ])
+  const [loading,setLoading]=useState<boolean>(false);
 
-    useEffect(() => {
 
-        (
-            async function(){
-                try {
-                    
-                    const {data} = await axios.get("http://localhost:3000",{
-                        headers:{
-                            "Authorization":`Bearer ${token}`
-                        }
-                    })
 
-                    if(!data.success){
-                        navigate("/")
-                    }
 
-                } catch (error) {
-                        navigate("/") 
-                }
-            }         
-        )()
+  useEffect(() => {
 
-    }, [])
-    
+    (
+      async function(){
+        try {
+          setLoading(true)
+          const {data:rawData} = await axios.get("http://localhost:3000/user/alluser",
+            {
+              headers:{
+                "Authorization":`Bearer ${localStorage.getItem("authid")}`
+              }
+            }
+          )
+          const {data} = rawData;
+          setUsers(prev=>[...data])
+          setLoading(false);
+          toast.success("User Fetched")
 
+        } catch (error) {
+          let  data = (error as AxiosError).response!.data
+          toast.error((data as {success:boolean,message:string}).message)
+        }
+      }
+    )()
+   
+  
+    return () => {
+      setUsers([])
+    }
+  }, [])
+  
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
-      <header className="bg-white shadow-md">
-        <div className="container mx-auto px-4 py-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-600">MyLandingPage</h1>
-          <nav className="space-x-6">
-            <a href="#features" className="text-gray-700 hover:text-blue-600">Features</a>
-            <a href="#about" className="text-gray-700 hover:text-blue-600">About</a>
-            <a href="#contact" className="text-gray-700 hover:text-blue-600">Contact</a>
-          </nav>
-        </div>
-      </header>
+    <Table className="max-w-5xl mx-auto">
+      <TableHeader>
+        <TableRow>
+          <TableHead>S.No</TableHead>
+          <TableHead className="w-[100px]">Name</TableHead>
+          <TableHead>Username</TableHead>
+          <TableHead>email</TableHead>
+          <TableHead className="text-right">DOB</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user:User,index:number) => (
+          <TableRow key={user.email}>
+            <TableCell>{index+1}</TableCell>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>{user.username}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-right">{DateToString(user.Date_Of_Birth)}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
 
-      {/* Hero Section */}
-      <section className="bg-blue-600 text-white flex-grow flex items-center">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Welcome to MyLandingPage</h2>
-          <p className="text-lg mb-6">
-            Your one-stop solution for amazing web experiences.
-          </p>
-          <button className="px-6 py-3 bg-white text-blue-600 rounded-lg shadow-lg hover:bg-gray-100">
-            Get Started
-          </button>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-16 bg-gray-100">
-        <div className="container mx-auto px-4 text-center">
-          <h3 className="text-3xl font-bold mb-6">Features</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 bg-white shadow rounded-lg">
-              <h4 className="text-xl font-semibold mb-4">Feature One</h4>
-              <p className="text-gray-600">Experience lightning-fast performance.</p>
-            </div>
-            <div className="p-6 bg-white shadow rounded-lg">
-              <h4 className="text-xl font-semibold mb-4">Feature Two</h4>
-              <p className="text-gray-600">Intuitive design to delight users.</p>
-            </div>
-            <div className="p-6 bg-white shadow rounded-lg">
-              <h4 className="text-xl font-semibold mb-4">Feature Three</h4>
-              <p className="text-gray-600">Secure and reliable architecture.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-6">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; {new Date().getFullYear()} MyLandingPage. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-export default LandingPage;
+export default Home

@@ -1,11 +1,11 @@
 import express from "express";
-import {loginUser,ragisterUser,verifyOTP} from "../controllers/user.js";
-import { validateOtp } from '../middleware/validation.js';
+import {getAlluserList, loginUser,ragisterUser} from "../controllers/user.js";
+import { authorizationVerify } from "../middleware/validation.js";
 
 const router = express.Router()
 
 router.post('/register',ragisterUser)
 router.post('/login',loginUser)
-router.post("/verify-otp",validateOtp,verifyOTP)
+router.get("/alluser",authorizationVerify,getAlluserList)
 
 export default router
