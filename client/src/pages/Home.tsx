@@ -22,51 +22,51 @@ interface User{
 }
 
 const Home = () => {
-  const [users,setUsers]= useState<User[]>([
-    // {
-    //   name:"",
-    //   username:"",
-    //   email:"",
-    //   Date_Of_birth:new Date(Date.now()),
-    //   createdAt:new Date(),
-    //   UpdateAt:new Date()
-    // }
-  ])
-  const [loading,setLoading]=useState<boolean>(false);
-
-
-
+  const [users,setUsers]= useState<User[]>([])
 
   useEffect(() => {
-
-    (
-      async function(){
-        try {
-          setLoading(true)
-          const {data:rawData} = await axios.get("http://localhost:3000/user/alluser",
-            {
-              headers:{
-                "Authorization":`Bearer ${localStorage.getItem("authid")}`
-              }
-            }
-          )
-          const {data} = rawData;
-          setUsers(prev=>[...data])
-          setLoading(false);
-          toast.success("User Fetched")
-
-        } catch (error) {
-          let  data = (error as AxiosError).response!.data
-          toast.error((data as {success:boolean,message:string}).message)
+    let isMounted =true;
+    const fetchUsers = async () => {
+      try {
+        const authToken = localStorage.getItem("authid");
+        if (!authToken) {
+          toast.error("Authorization token not found");
+          return;
         }
+  
+        const { data: rawData } = await axios.get("http://localhost:3000/user/alluser", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authid")}`,
+          },
+        });
+
+        if(isMounted){
+          setUsers([...rawData.data]);
+          toast.success("Users fetched successfully!");
+        }
+  
+       
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        
+        if (axiosError.response?.data) {
+          const errorData = axiosError.response.data as { success: boolean; message: string };
+          toast.error(errorData.message);
+        } else {
+          toast.error("An unexpected error occurred");
+        }
+
       }
-    )()
-   
+    };
+  
+    fetchUsers();
   
     return () => {
-      setUsers([])
-    }
-  }, [])
+      isMounted = false;
+      setUsers([]);
+    } 
+  }, []);
+  
   
 
   return (

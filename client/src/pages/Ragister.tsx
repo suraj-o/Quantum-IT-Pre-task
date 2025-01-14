@@ -2,7 +2,6 @@ import axios, { AxiosError } from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import AuthHeader from "../components/AuthHeader";
 
 const Register = () => {
   const [name, setName] = useState<string>("");
@@ -45,11 +44,8 @@ const Register = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col px-3 py-4 lg:mt-6">
-      {/* Header */}
-      <AuthHeader />
+    <div className="max-w-xl mx-auto flex flex-col px-3 py-4">
 
-      {/* Written Content */}
       <div className="flex flex-col justify-center px-8 my-8 space-y-4 max-w-[80%]">
         <h1 className="font-bold text-2xl">Create an account</h1>
         <p className="text-gray-400 font-sans text-lg">
@@ -57,7 +53,7 @@ const Register = () => {
         </p>
       </div>
       <Link className="self-end mr-10 text-blue-700" to={"/"}>
-        <p className="self-end mr-10 text-blue-700"> Already have an account</p>
+        <p className="self-end text-blue-700"> Already have an account</p>
       </Link>
 
       {/* Input Sections */}

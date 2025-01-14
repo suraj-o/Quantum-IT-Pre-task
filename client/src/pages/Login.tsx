@@ -3,7 +3,6 @@ import axios, { AxiosError } from "axios"
 import { useState } from "react"
 import toast from "react-hot-toast"
 import { Link } from "react-router-dom"
-import AuthHeader from "../components/AuthHeader"
 
 const Login = () => {
 
@@ -38,12 +37,7 @@ const Login = () => {
 
 
   return (
-            <div className="max-w-3xl mx-auto flex flex-col px-3 py-4 lg:mt-6">
-
-            {/* Header */}
-            <AuthHeader/>
-    
-            {/* Writen Content */}
+            <div className="max-w-xl mx-auto flex flex-col px-3 py-4">
     
             <div className="flex flex-col justify-center px-8 my-16 space-y-4 max-w-[80%]">
                 <h1 className="font-bold text-2xl">
